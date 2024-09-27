@@ -1,0 +1,28 @@
+version: '3'
+services:
+  application:
+    container_name: dpide
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:tcp://h2:1521/dpide
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - db
+
+  db:
+    container_name: h2
+    image: oscarfonts/h2
+    platform: linux/amd64
+    ports:
+      - 1521:1521
+      - 8081:81
+    environment:
+      - H2_OPTIONS=-ifNotExists
+    volumes:
+      - ./h2/:/opt/h2-data
