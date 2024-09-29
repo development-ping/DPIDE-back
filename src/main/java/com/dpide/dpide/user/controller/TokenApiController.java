@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@CrossOrigin
 @Slf4j  // SLF4J 로그 사용
 public class TokenApiController {
 

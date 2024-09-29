@@ -25,7 +25,6 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/user")
-@CrossOrigin
 @Slf4j  // SLF4J 로그 사용
 public class UserApiController {
 
