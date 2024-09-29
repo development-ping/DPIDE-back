@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-alpine:17
+FROM openjdk:17-jdk-slim as builder
 
 ENV APP_HOME=/apps
 WORKDIR $APP_HOME
@@ -10,10 +10,10 @@ COPY build.gradle $APP_HOME
 COPY settings.gradle $APP_HOME
 
 ARG JAR_FILE_PATH=./build/libs/dpide-0.0.1-SNAPSHOT.jar
+VOLUME /tmp
 COPY ${JAR_FILE_PATH} app.jar
 
-ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Seoul
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
