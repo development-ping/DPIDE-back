@@ -1,5 +1,6 @@
 package com.dpide.dpide.domain;
 
+import com.dpide.dpide.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -25,3 +25,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+
+jwt:
+  issuer: dpide
+  secret_key: test-version-serect-keyjejsndskadlwkmkaslckjaskldasadjkajwkhajkhk
