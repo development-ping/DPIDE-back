@@ -2,7 +2,7 @@ spring:
   application:
     name: dpide
   datasource:
-    url: jdbc:h2:tcp://h2:1521/dpide
+    url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -17,3 +17,6 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+jwt:
+  issuer: dpide
+  secret_key: test-version-serect-keyjejsndskadlwkmkaslckjaskldasadjkajwkhajkhk
