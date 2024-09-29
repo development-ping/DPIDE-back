@@ -13,17 +13,56 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: SSH into EC2 and deploy
+      - name: SSH into EC2 and cd into project
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          script: |
-            cd ~/DPIDE-back
-            docker-compose down
-            git pull origin main
-            ./gradlew build -x test
-            docker-compose build --no-cache
-            docker-compose up -d
+          script: cd ~/DPIDE-back
+
+      - name: Docker-compose down
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: docker-compose down
+
+      - name: Pull from git
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: git pull origin main
+
+      - name: Build project
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: ./gradlew build -x test
+
+      - name: Build docker without cache
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: docker-compose build --no-cache
+
+      - name: Docker-compose up
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: docker-compose up -d
