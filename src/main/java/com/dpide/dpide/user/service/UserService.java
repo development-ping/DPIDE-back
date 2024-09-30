@@ -3,6 +3,7 @@ package com.dpide.dpide.user.service;
 import com.dpide.dpide.exception.AuthenticationException;
 import com.dpide.dpide.exception.DuplicateEmailException;
 import com.dpide.dpide.exception.DuplicateNicknameException;
+import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.dto.Request.UpdateUserRequest;
@@ -91,6 +92,9 @@ public class UserService {
             log.error("User not found with ID: {}", userId);
             throw new IllegalArgumentException("User not found with ID: " + userId);
         }
+
+//        userRepository.findById(userId)
+//                .orElseThrow(() ->new UserNotFoundException(userId));
 
         // 사용자 삭제
         userRepository.deleteById(userId);
