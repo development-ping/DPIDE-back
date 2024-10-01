@@ -40,13 +40,18 @@ public class FileDto {
 
     @Builder
     @Getter
+    @Setter
+    @ToString
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class FileInfoRes {
         private Long id;
         private String name;
         private String extension;
         private Long projectId;
         private Long parentId;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
 
         public static FileInfoRes of(File file) {
             return FileInfoRes.builder()
@@ -55,6 +60,8 @@ public class FileDto {
                     .extension(file.getExtension())
                     .projectId(file.getProject().getId())
                     .parentId(file.getParentFile() == null ? -1 : file.getParentFile().getId())
+                    .createdAt(file.getCreatedAt())
+                    .updatedAt(file.getUpdatedAt())
                     .build();
         }
     }
