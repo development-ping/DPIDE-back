@@ -3,6 +3,7 @@ package com.dpide.dpide.user.service;
 import com.dpide.dpide.exception.AuthenticationException;
 import com.dpide.dpide.exception.DuplicateEmailException;
 import com.dpide.dpide.exception.DuplicateNicknameException;
+import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.dto.Request.UpdateUserRequest;
@@ -32,8 +33,7 @@ public class UserService {
         return userRepository.save(User.builder()
                 .email(request.getEmail())
                 .nickname(request.getNickname())
-                // ① 패스워드 암호화
-                .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .password(bCryptPasswordEncoder.encode(request.getPassword()))  // 패스워드 암호화
                 .build());
     }
 
@@ -67,13 +67,13 @@ public class UserService {
         // 이메일로 사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.error("Invalid email: {}", email);
+                    log.error("Authentication failed, invalid email: {}", email);
                     return new AuthenticationException("Invalid email");
                 });
 
         // 비밀번호 검증
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-            log.error("Invalid password for email: {}", email);
+            log.error("Authentication failed, invalid password for email: {}", email);
             throw new AuthenticationException("Invalid password");
         }
 
@@ -97,69 +97,84 @@ public class UserService {
         log.info("User deleted successfully with ID: {}", userId);
     }
 
+    // 사용자 정보 업데이트 로직
     @Transactional
     public void updateUser(Long userId, UpdateUserRequest updateRequest) {
-        // 1. 기존 사용자 조회
-        Optional<User> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
-        }
+        log.info("Updating user information for user ID: {}", userId);
 
-        User user = optionalUser.get();
+        // 1. 기존 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with ID: {}", userId);
+                    return new IllegalArgumentException("User not found");
+                });
 
         // 2. oldPassword 확인
         if (!bCryptPasswordEncoder.matches(updateRequest.getOldPassword(), user.getPassword())) {
+            log.error("Invalid old password provided for user ID: {}", userId);
             throw new IllegalArgumentException("Invalid old password");
         }
 
         // 3. 이메일 업데이트
         if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(user.getEmail())) {
             if (userRepository.existsByEmail(updateRequest.getEmail())) {
+                log.error("Email already in use: {}", updateRequest.getEmail());
                 throw new IllegalArgumentException("Email already in use");
             }
             user.setEmail(updateRequest.getEmail());
+            log.info("Email updated successfully for user ID: {}", userId);
         }
 
         // 4. 닉네임 업데이트
         if (updateRequest.getNickname() != null && !updateRequest.getNickname().equals(user.getNickname())) {
             if (userRepository.existsByNickname(updateRequest.getNickname())) {
+                log.error("Nickname already in use: {}", updateRequest.getNickname());
                 throw new IllegalArgumentException("Nickname already in use");
             }
             user.setNickname(updateRequest.getNickname());
+            log.info("Nickname updated successfully for user ID: {}", userId);
         }
 
         // 5. 비밀번호 업데이트 (newPassword 설정)
         if (updateRequest.getNewPassword() != null) {
             user.setPassword(bCryptPasswordEncoder.encode(updateRequest.getNewPassword()));
+            log.info("Password updated successfully for user ID: {}", userId);
         }
 
         // 6. 변경된 사용자 정보 저장
         userRepository.save(user);
+        log.info("User information updated successfully for user ID: {}", userId);
     }
-
 
     public User findById(Long userId) {
         log.info("Finding user by ID: {}", userId);
         return userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("User not found with ID: {}", userId);
-                    return new IllegalArgumentException("Unexpected user");
+                    return new IllegalArgumentException("User not found with ID: " + userId);
                 });
     }
 
     public User getAuthenticatedUser(String token) {
+        log.info("Retrieving authenticated user from token");
         // 토큰에서 인증 정보 추출
         Authentication authentication = tokenProvider.getAuthentication(token.substring(7)); // 'Bearer ' 부분을 제외하고 토큰을 전달
         String email = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername(); // email 가져오기
 
         // email을 통해 실제 User 정보 조회
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> {
+                    log.error("User not found with email: {}", email);
+                    return new IllegalArgumentException("User not found with email: " + email);
+                });
     }
 
-    // 이메일로 사용자 찾기 메서드
     public User findByEmail(String email) {
+        log.info("Finding user by email: {}", email);
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> {
+                    log.error("User not found with email: {}", email);
+                    return new IllegalArgumentException("User not found with email: " + email);
+                });
     }
 }

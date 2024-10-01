@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.io.FileNotFoundException;
-
 import static com.dpide.dpide.util.ErrorBuildFactory.*;
 
 @Slf4j
