@@ -10,6 +10,8 @@ public enum ErrorCode {
     AUTHENTICATION_FAILED("AUTHENTICATION_FAILED", "인증에 실패하였습니다.", 400),
     PROJECT_NOT_FOUND("PROJECT_NOT_FOUND", "해당 프로젝트를 찾을 수 없습니다.", 400),
     FILE_NOT_FOUND("FILE_NOT_FOUND", "해당 파일을 찾을 수 없습니다.", 400),
+    PROJECT_OWNERSHIP("PROJECT_OWNERSHIP", "프로젝트 소유자만 가능한 요청입니다.", 400),
+
     ;
 
     private final String code;
@@ -21,4 +23,5 @@ public enum ErrorCode {
         this.message = message;
         this.status = status;
     }
+
 }
