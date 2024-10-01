@@ -1,5 +1,6 @@
 package com.dpide.dpide.domain;
 
+import com.dpide.dpide.dto.FileDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,4 +50,15 @@ public class File {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    public static File of(FileDto.CreationReq req, Project project, File parentFile) {
+        return File.builder()
+                .name(req.getName())
+                .extension(req.getExtension())
+                .path(req.getPath())
+                .project(project)
+                .parentFile(parentFile)
+                .build();
+    }
 }
+

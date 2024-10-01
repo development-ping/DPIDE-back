@@ -1,5 +1,6 @@
 package com.dpide.dpide.dto;
 
+import com.dpide.dpide.domain.File;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -7,12 +8,11 @@ import java.time.LocalDateTime;
 public class FileDto {
     @Builder
     @Getter
-    @Setter @ToString
+    @Setter
+    @ToString
     @AllArgsConstructor
     @NoArgsConstructor
     public static class CreationReq {
-        private Long userId;
-        private Long projectId;
         private String name;
         private String extension;
         private String path;
@@ -20,34 +20,12 @@ public class FileDto {
     }
 
     @Builder
-    @Getter @Setter
-    @ToString
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class DeletionReq {
-        private Long userId;
-        private Long projectId;
-        private Long fileId;
-    }
-
-    @Builder
-    @Getter @Setter
-    @ToString
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ReadReq {
-        private Long userId;
-        private Long projectId;
-        private Long fileId;
-    }
-
-    @Builder
-    @Getter @Setter
+    @Getter
+    @Setter
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ExecutionReq {
-        private Long userId;
         private Long projectId;
         private Long fileId;
     }
@@ -64,12 +42,20 @@ public class FileDto {
     @Getter
     @AllArgsConstructor
     public static class FileInfoRes {
-        private Long fileId;
+        private Long id;
         private String name;
         private String extension;
         private Long projectId;
         private Long parentId;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+
+        public static FileInfoRes of(File file) {
+            return FileInfoRes.builder()
+                    .id(file.getId())
+                    .name(file.getName())
+                    .extension(file.getExtension())
+                    .projectId(file.getProject().getId())
+                    .parentId(file.getParentFile() == null ? -1 : file.getParentFile().getId())
+                    .build();
+        }
     }
 }

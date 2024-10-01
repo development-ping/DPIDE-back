@@ -1,6 +1,6 @@
 package com.dpide.dpide.domain;
 
-public enum Role {
+public enum ProjectRole {
     OWNER,
     PARTICIPANT
 }
