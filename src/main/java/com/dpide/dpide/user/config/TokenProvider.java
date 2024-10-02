@@ -73,6 +73,7 @@ public class TokenProvider {
         }
     }
 
+  
     // JWT 토큰에서 인증 정보를 가져오는 메서드
     public Authentication getAuthentication(String token) {
         log.info("Extracting authentication details from JWT token");
@@ -86,15 +87,6 @@ public class TokenProvider {
         );
         log.info("Authentication details extracted successfully for user: {}", claims.getSubject());
         return authentication;
-    }
-
-    // JWT 토큰에서 유저 ID를 가져오는 메서드
-    public Long getUserId(String token) {
-        log.info("Extracting user ID from JWT token");
-        Claims claims = getClaims(token);
-        Long userId = claims.get("id", Long.class);
-        log.info("User ID {} extracted successfully from JWT token", userId);
-        return userId;
     }
 
     // 클레임을 추출하는 메서드
