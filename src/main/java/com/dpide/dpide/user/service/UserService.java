@@ -115,16 +115,6 @@ public class UserService {
             throw new IllegalArgumentException("Invalid old password");
         }
 
-        // 3. 이메일 업데이트
-        if (updateRequest.getEmail() != null && !updateRequest.getEmail().equals(user.getEmail())) {
-            if (userRepository.existsByEmail(updateRequest.getEmail())) {
-                log.error("Email already in use: {}", updateRequest.getEmail());
-                throw new IllegalArgumentException("Email already in use");
-            }
-            user.setEmail(updateRequest.getEmail());
-            log.info("Email updated successfully for user ID: {}", userId);
-        }
-
         // 4. 닉네임 업데이트
         if (updateRequest.getNickname() != null && !updateRequest.getNickname().equals(user.getNickname())) {
             if (userRepository.existsByNickname(updateRequest.getNickname())) {
