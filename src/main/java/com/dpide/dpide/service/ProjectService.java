@@ -5,9 +5,9 @@ import com.dpide.dpide.domain.ProjectRole;
 import com.dpide.dpide.dto.ProjectDto;
 import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.repository.ProjectRepository;
-import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
+import com.dpide.dpide.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ProjectService {
-    private final TokenProvider tokenProvider;
+    private final UserService userService;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
     public ProjectDto.ProjectInfoRes createProject(ProjectDto.CreationReq req, String token) {
         log.info("Creating a new project with name: {}", req.getName());
 
-//        Long userId = tokenProvider.getUserId(token);
-        Long userId = 1L;
+        Long userId = userService.getAuthenticatedUser(token).getId();
         User user = validateUser(userId);
 
         // 프로젝트 생성 및 유저(오너) 추가
@@ -41,8 +40,7 @@ public class ProjectService {
     }
 
     public List<ProjectDto.ProjectInfoRes> getProjects(String token) {
-//        Long userId = tokenProvider.getUserId(token);
-        Long userId = 1L;
+        Long userId = userService.getAuthenticatedUser(token).getId();
         validateUser(userId);
 
         return projectRepository.findByUserId(userId).stream()

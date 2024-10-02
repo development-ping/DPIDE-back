@@ -12,7 +12,6 @@ import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.repository.FileRepository;
 import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.repository.ProjectUserRepository;
-import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import com.dpide.dpide.user.service.UserService;
@@ -34,12 +33,11 @@ public class FileService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final ProjectUserRepository projectUserRepository;
-    private final TokenProvider tokenProvider;
 
     public FileDto.FileInfoRes createFile(Long projectId, FileDto.CreationReq req, String token) {
         log.info("Creating a new file with name: {}", req.getName());
 
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = userService.getAuthenticatedUser(token).getId();
 
         validateUser(userId);
         Project project = validateProject(projectId);
@@ -55,8 +53,7 @@ public class FileService {
     public void deleteFile(Long projectId, Long fileId, String token) {
         log.info("Deleting a file with id: {}", fileId);
 
-        Long userId = tokenProvider.getUserId(token);
-
+        Long userId = userService.getAuthenticatedUser(token).getId();
         validateUser(userId);
         validateProject(projectId);
         validateOwnership(projectId, userId);
@@ -70,7 +67,7 @@ public class FileService {
     public InputStreamResource getFileContent(Long projectId, Long fileId, String token) throws IOException {
         log.info("Getting a file with id: {}", fileId);
 
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = userService.getAuthenticatedUser(token).getId();
 
         validateUser(userId);
         validateProject(projectId);
@@ -88,7 +85,7 @@ public class FileService {
     public FileDto.FileInfoRes updateFile(Long projectId, Long fileId, String name, MultipartFile content, String token) {
         log.info("Updating a file with id: {}", fileId);
 
-        Long userId = tokenProvider.getUserId(token);
+        Long userId = userService.getAuthenticatedUser(token).getId();
 
         validateUser(userId);
         validateProject(projectId);
