@@ -25,6 +25,17 @@ public class ProjectDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class UpdateReq {
+        private String name;
+        private String description;
+    }
+
+    @Builder
+    @Getter
+    @Setter
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ProjectInfoRes {
         private Long id;
         private String name;
