@@ -62,4 +62,11 @@ public class ErrorHandlingController {
         log.error("해당 파일을 찾을 수 없습니다.");
         return buildError(ErrorCode.FILE_NOT_FOUND);
     }
+
+    @ExceptionHandler(ProjectOwnershipException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleProjectOwnershipException(ProjectOwnershipException e) {
+        log.error("프로젝트 소유자만 가능한 요청입니다.");
+        return buildError(ErrorCode.PROJECT_OWNERSHIP);
+    }
 }

@@ -1,5 +1,6 @@
 package com.dpide.dpide.domain;
 
+import com.dpide.dpide.dto.ProjectDto;
 import com.dpide.dpide.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -54,6 +56,28 @@ public class Project {
     // Project와 User 간의 다대다 관계를 관리하는 Project_User 연결 테이블
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectUser> projectUsers;
+
+    public static Project of(ProjectDto.CreationReq req, User user) {
+        return Project.builder()
+                .name(req.getName())
+                .description(req.getDescription())
+                .language(req.getLanguage())
+                .user(user)
+                .build();
+    }
+
+    // TODO: ProjectUser 추가 시 사용할 메소드
+    public void addUser(User user, ProjectRole role) {
+        if (this.projectUsers == null) {
+            this.projectUsers = new ArrayList<>();
+        }
+        ProjectUser projectUser = ProjectUser.builder()
+                .project(this)
+                .user(user)
+                .role(role)
+                .build();
+        projectUsers.add(projectUser);
+    }
 }
 
 

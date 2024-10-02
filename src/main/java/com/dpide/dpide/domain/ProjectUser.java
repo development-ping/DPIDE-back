@@ -31,7 +31,8 @@ public class ProjectUser {
     private User user;
 
     @Column(nullable = false, length = 50)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private ProjectRole role;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
