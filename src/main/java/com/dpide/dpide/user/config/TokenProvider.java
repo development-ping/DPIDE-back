@@ -76,12 +76,6 @@ public class TokenProvider {
         );
     }
 
-    // JWT 토큰에서 유저 ID를 가져오는 메서드
-    public Long getUserId(String token) {
-        Claims claims = getClaims(token);
-        return claims.get("id", Long.class);  // 클레임에서 ID를 Long으로 가져옴
-    }
-
     // 클레임을 추출하는 메서드
     private Claims getClaims(String token) {
         // SecretKey를 Key 객체로 변환
