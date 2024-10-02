@@ -24,6 +24,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        // 웹소켓 업그레이드 요청인지 확인
+        if ("Upgrade".equalsIgnoreCase(request.getHeader("Connection")) &&
+                "websocket".equalsIgnoreCase(request.getHeader("Upgrade"))) {
+            // 웹소켓 요청이면 필터를 건너뛴다.
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             // 요청 헤더에서 Authorization 값 조회
