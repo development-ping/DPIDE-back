@@ -1,13 +1,10 @@
 package com.dpide.dpide.user.service;
 
-import com.dpide.dpide.exception.AuthenticationException;
-import com.dpide.dpide.exception.DuplicateEmailException;
-import com.dpide.dpide.exception.DuplicateNicknameException;
-import com.dpide.dpide.exception.UserNotFoundException;
+import com.dpide.dpide.exception.*;
 import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
-import com.dpide.dpide.user.dto.Request.UpdateUserRequest;
-import com.dpide.dpide.user.dto.Request.UserRequest;
+import com.dpide.dpide.user.dto.UserDto;
+import com.dpide.dpide.user.dto.TokenDto;
 import com.dpide.dpide.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.time.Duration;
 
 @RequiredArgsConstructor
 @Service
@@ -26,114 +23,123 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenProvider tokenProvider;
-
-    // 새 유저 생성
-    public User makeUser(UserRequest request) {
-        log.info("Creating a new user with email: {}", request.getEmail());
-        return userRepository.save(User.builder()
-                .email(request.getEmail())
-                .nickname(request.getNickname())
-                .password(bCryptPasswordEncoder.encode(request.getPassword()))  // 패스워드 암호화
-                .build());
-    }
+    private final RefreshTokenService refreshTokenService;
 
     // 회원가입 로직
     @Transactional
-    public User registerUser(UserRequest request) {
+    public UserDto.UserResponse registerUser(UserDto.RegisterRequest request) {
         log.info("Registering user with email: {}", request.getEmail());
 
-        // 중복된 이메일 확인
-        if (userRepository.existsByEmail(request.getEmail())) {
-            log.error("Duplicate email found: {}", request.getEmail());
-            throw new DuplicateEmailException("Email already in use");
-        }
+        // 중복된 이메일 확인 및 예외 던지기
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(user -> {
+                    throw new DuplicateEmailException(request.getEmail());
+                });
 
-        // 중복된 닉네임 확인
-        if (userRepository.existsByNickname(request.getNickname())) {
-            log.error("Duplicate nickname found: {}", request.getNickname());
-            throw new DuplicateNicknameException("Nickname already in use");
-        }
+        // 중복된 닉네임 확인 및 예외 던지기
+        userRepository.findByNickname(request.getNickname())
+                .ifPresent(user -> {
+                    throw new DuplicateNicknameException(request.getNickname());
+                });
 
         // 회원 정보 저장
-        User user = makeUser(request);
-        log.info("User registered successfully with ID: {}", user.getId());
-        return userRepository.save(user);
+        User user = User.builder()
+                .email(request.getEmail())
+                .nickname(request.getNickname())
+                .password(bCryptPasswordEncoder.encode(request.getPassword()))  // 패스워드 암호화
+                .build();
+
+        User savedUser = userRepository.save(user);
+        log.info("User registered successfully with ID: {}", savedUser.getId());
+
+        // UserDto.UserInfo 반환
+        return UserDto.UserResponse.builder()
+                .id(savedUser.getId())
+                .email(savedUser.getEmail())
+                .nickname(savedUser.getNickname())
+                .build();
     }
 
     // 사용자 인증 로직
-    public User authenticate(String email, String password) {
+    public UserDto.UserResponseWithToken authenticateAndGenerateTokens(String email, String password) {
         log.info("Authenticating user with email: {}", email);
 
-        // 이메일로 사용자 조회
+        // 이메일로 사용자 조회 및 인증
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    log.error("Authentication failed, invalid email: {}", email);
-                    return new AuthenticationException("Invalid email");
-                });
+                .orElseThrow(() -> new EmailNotFoundException(email));
 
-        // 비밀번호 검증
         if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
-            log.error("Authentication failed, invalid password for email: {}", email);
-            throw new AuthenticationException("Invalid password");
+            throw new IncorrectPasswordException();
         }
 
-        log.info("User authenticated successfully with email: {}", email);
-        return user;
+        // JWT 액세스 토큰 및 리프레시 토큰 생성
+        String accessToken = tokenProvider.generateToken(user, Duration.ofHours(2));
+        String refreshToken = tokenProvider.generateToken(user, Duration.ofDays(7));
+
+        // 리프레시 토큰 저장
+        refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
+
+        log.info("Login successful for user ID: {}", user.getId());
+
+        // UserResponseWithToken 반환 (토큰 정보와 사용자 정보를 모두 반환)
+        return UserDto.UserResponseWithToken.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .tokenResponse(TokenDto.TokenResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build())
+                .build();
     }
 
-    // 회원탈퇴 기능 (userId로 사용자 삭제)
+
+    // 회원탈퇴 기능
     @Transactional
     public void deleteUserById(Long userId) {
         log.info("Deleting user with ID: {}", userId);
 
-        // 사용자 존재 여부 확인
-        if (!userRepository.existsById(userId)) {
-            log.error("User not found with ID: {}", userId);
-            throw new IllegalArgumentException("User not found with ID: " + userId);
-        }
+        // 사용자를 조회하고 없으면 예외 발생
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         // 사용자 삭제
-        userRepository.deleteById(userId);
+        userRepository.delete(user);
         log.info("User deleted successfully with ID: {}", userId);
     }
 
+    // 닉네임 업데이트
+    @Transactional
+    public void updateNickname(Long userId, UserDto.updateRequest updateRequest) {
+        log.info("Updating user nickname for user ID: {}", userId);
+
+        // 사용자를 조회하고 없으면 예외 발생
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        user.setNickname(updateRequest.getNickname());
+        userRepository.save(user);
+        log.info("User nickname updated successfully for user ID: {}", userId);
+    }
+
+
     // 사용자 정보 업데이트 로직
     @Transactional
-    public void updateUser(Long userId, UpdateUserRequest updateRequest) {
-        log.info("Updating user information for user ID: {}", userId);
+    public void updatePassword(Long userId, UserDto.updateRequest updateRequest) {
+        log.info("Updating user password for user ID: {}", userId);
 
-        // 1. 기존 사용자 조회
+        // 사용자를 조회하고 없으면 예외 발생
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found with ID: {}", userId);
-                    return new IllegalArgumentException("User not found");
-                });
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        // 2. oldPassword 확인
+        // oldPassword 확인
         if (!bCryptPasswordEncoder.matches(updateRequest.getOldPassword(), user.getPassword())) {
-            log.error("Invalid old password provided for user ID: {}", userId);
-            throw new IllegalArgumentException("Invalid old password");
+            throw new IncorrectPasswordException();
         }
 
-        // 4. 닉네임 업데이트
-        if (updateRequest.getNickname() != null && !updateRequest.getNickname().equals(user.getNickname())) {
-            if (userRepository.existsByNickname(updateRequest.getNickname())) {
-                log.error("Nickname already in use: {}", updateRequest.getNickname());
-                throw new IllegalArgumentException("Nickname already in use");
-            }
-            user.setNickname(updateRequest.getNickname());
-            log.info("Nickname updated successfully for user ID: {}", userId);
-        }
-
-        // 5. 비밀번호 업데이트 (newPassword 설정)
-        if (updateRequest.getNewPassword() != null) {
-            user.setPassword(bCryptPasswordEncoder.encode(updateRequest.getNewPassword()));
-            log.info("Password updated successfully for user ID: {}", userId);
-        }
-
-        // 6. 변경된 사용자 정보 저장
+        user.setPassword(bCryptPasswordEncoder.encode(updateRequest.getNewPassword()));
         userRepository.save(user);
-        log.info("User information updated successfully for user ID: {}", userId);
+        log.info("User password updated successfully for user ID: {}", userId);
     }
 
     public User findById(Long userId) {
@@ -152,15 +158,6 @@ public class UserService {
         String email = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).getUsername(); // email 가져오기
 
         // email을 통해 실제 User 정보 조회
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    log.error("User not found with email: {}", email);
-                    return new IllegalArgumentException("User not found with email: " + email);
-                });
-    }
-
-    public User findByEmail(String email) {
-        log.info("Finding user by email: {}", email);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("User not found with email: {}", email);
