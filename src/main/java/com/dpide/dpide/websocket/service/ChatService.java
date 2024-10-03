@@ -1,5 +1,7 @@
 package com.dpide.dpide.websocket.service;
 
+import com.dpide.dpide.exception.ProjectNotFoundException;
+import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.websocket.domain.Chat;
 import com.dpide.dpide.websocket.dto.ChatSearch;
 import com.dpide.dpide.websocket.repository.ChatRepository;
@@ -28,11 +30,11 @@ public class ChatService {
     public void saveMessage(String content, Long projectId, Long userId) {
         // DB에서 User 객체 조회
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         // DB에서 Project 객체 조회
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         // 채팅 메시지 DB 저장
         Chat chat = Chat.builder()

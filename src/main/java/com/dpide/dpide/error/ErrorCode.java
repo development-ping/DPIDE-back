@@ -11,6 +11,10 @@ public enum ErrorCode {
     PROJECT_NOT_FOUND("PROJECT_NOT_FOUND", "해당 프로젝트를 찾을 수 없습니다.", 400),
     FILE_NOT_FOUND("FILE_NOT_FOUND", "해당 파일을 찾을 수 없습니다.", 400),
     PROJECT_OWNERSHIP("PROJECT_OWNERSHIP", "프로젝트 소유자만 가능한 요청입니다.", 400),
+    INVALID_TOKEN("INVALID_TOKEN", "유효하지 않은 JWT 토큰입니다.", 401),
+    INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "유효하지 않은 리프레시 토큰입니다", 401),
+    EMAIL_NOT_FOUND("EMAIL_NOT_FOUND", "이메일을 찾을 수 없습니다.", 404),
+    INCORRECT_PASSWORD("INCORRECT_PASSWORD", "비밀번호가 틀렸습니다.", 401),
 
     ;
 
