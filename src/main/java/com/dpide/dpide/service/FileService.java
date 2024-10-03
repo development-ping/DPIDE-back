@@ -54,6 +54,7 @@ public class FileService {
         log.info("Deleting a file with id: {}", fileId);
 
         Long userId = userService.getAuthenticatedUser(token).getId();
+
         validateUser(userId);
         validateProject(projectId);
         validateOwnership(projectId, userId);

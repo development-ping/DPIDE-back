@@ -19,13 +19,38 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ProjectDto.ProjectInfoRes> createProject(@RequestBody ProjectDto.CreationReq req,
                                                                    @RequestHeader("Authorization") String token) {
+        log.info("CALL: ProjectController.createProject");
         return ResponseEntity.ok(projectService.createProject(req, token));
     }
 
     @GetMapping
     public ResponseEntity<ProjectDto.ProjectListRes> getProjects(@RequestHeader("Authorization") String token) {
+        log.info("CALL: ProjectController.getProjects");
         List<ProjectDto.ProjectInfoRes> projects = projectService.getProjects(token);
         return ResponseEntity.ok(new ProjectDto.ProjectListRes(projects));
+    }
+
+    @GetMapping("/invited")
+    public ResponseEntity<ProjectDto.ProjectListRes> getInvitedProjects(@RequestHeader("Authorization") String token) {
+        log.info("CALL: ProjectController.getInvitedProjects");
+        List<ProjectDto.ProjectInfoRes> projects = projectService.getInvitedProjects(token);
+        return ResponseEntity.ok(new ProjectDto.ProjectListRes(projects));
+    }
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<ProjectDto.ProjectInfoRes> updateProject(@PathVariable Long projectId,
+                                                                   @RequestBody ProjectDto.UpdateReq req,
+                                                                   @RequestHeader("Authorization") String token) {
+        log.info("CALL: ProjectController.updateProject");
+        return ResponseEntity.ok(projectService.updateProject(projectId, req, token));
+    }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long projectId,
+                                              @RequestHeader("Authorization") String token) {
+        log.info("CALL: ProjectController.deleteProject");
+        projectService.deleteProject(projectId, token);
+        return ResponseEntity.noContent().build();
     }
 
 }
