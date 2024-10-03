@@ -1,20 +1,18 @@
 services:
   application:
     container_name: dpide
-
     build:
       context: .
       dockerfile: Dockerfile
-
     platform: linux/amd64
-
     ports:
       - 8080:8080
-
     environment:
       SPRING_DATASOURCE_URL: jdbc:h2:mem:dpide
       SPRING_DATASOURCE_USERNAME: sa
       SPRING_DATASOURCE_PASSWORD:
+    volumes:
+      - /tmp # 영구 저장을 하지 않는 임시 디렉토리 사용
 
   h2:
     container_name: h2db
