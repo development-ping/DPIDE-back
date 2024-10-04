@@ -33,7 +33,7 @@ public class FileController {
                                            @RequestHeader("Authorization") String token) {
         log.info("CALL: FileController.deleteFile");
         fileService.deleteFile(projectId, fileId, token);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/projects/{projectId}/files/{fileId}")

@@ -23,7 +23,7 @@ public class UserApiController {
     @PostMapping("/register")
     public ResponseEntity<UserDto.UserResponse> signup(@RequestBody UserDto.RegisterRequest request) {
         log.info("Received signup request: {}", request.getEmail());
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerUser(request));
+        return ResponseEntity.ok(userService.registerUser(request));
     }
 
     @PostMapping("/login")

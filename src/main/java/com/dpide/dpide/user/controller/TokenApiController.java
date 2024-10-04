@@ -28,7 +28,7 @@ public class TokenApiController {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.ok()
                 .headers(headers)
                 .build();
     }

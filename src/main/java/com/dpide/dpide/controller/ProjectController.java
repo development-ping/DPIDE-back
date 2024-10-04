@@ -50,7 +50,7 @@ public class ProjectController {
                                               @RequestHeader("Authorization") String token) {
         log.info("CALL: ProjectController.deleteProject");
         projectService.deleteProject(projectId, token);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
 }
