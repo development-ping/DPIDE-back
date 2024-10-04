@@ -10,6 +10,7 @@ import com.dpide.dpide.repository.ProjectUserRepository;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import com.dpide.dpide.user.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -27,6 +28,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
 
+    @Transactional
     public ProjectDto.ProjectInfoRes createProject(ProjectDto.CreationReq req, String token) {
         log.info("Creating a new project with name: {}", req.getName());
 
@@ -43,6 +45,7 @@ public class ProjectService {
         return ProjectDto.ProjectInfoRes.of(savedProject);
     }
 
+    @Transactional
     public List<ProjectDto.ProjectInfoRes> getProjects(String token) {
         log.info("Getting projects");
         Long userId = userService.getAuthenticatedUser(token).getId();
@@ -53,6 +56,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional
     public List<ProjectDto.ProjectInfoRes> getInvitedProjects(String token) {
         log.info("Getting invited projects");
         Long userId = userService.getAuthenticatedUser(token).getId();
@@ -64,6 +68,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional
     public ProjectDto.ProjectInfoRes updateProject(Long projectId, ProjectDto.UpdateReq req, String token) {
         log.info("Updating project with id: {}", projectId);
 
@@ -83,6 +88,7 @@ public class ProjectService {
         return ProjectDto.ProjectInfoRes.of(updatedProject);
     }
 
+    @Transactional
     public void deleteProject(Long projectId, String token) {
         log.info("Deleting project with id: {}", projectId);
 
@@ -117,37 +123,7 @@ public class ProjectService {
         return project;
     }
 
-    public void inviteProject(ProjectDto.ProjectInviteReq req , String token) {
-        // 초대한 사람
-        User inviter = userService.getAuthenticatedUser(token);
-
-        // 초대된 프로젝트
-        Project project = projectRepository.findById(req.getProjectId())
-                .orElseThrow(() -> new ProjectNotFoundException(req.getProjectId()));
-
-        // 초대한 사람이 소유권자인지 확인
-        ProjectUser projectOwner = projectUserRepository.findByProjectAndUserAndRole(project, inviter, ProjectRole.OWNER)
-                .orElseThrow(() -> new ProjectNotFoundException(project.getId()));
-
-        // 초대받은 유저 검색
-        User invitedUser = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new EmailNotFoundException(req.getEmail()));
-
-        // 이미 초대된 유저인지 확인
-        if (projectUserRepository.existsByProjectAndUser(project, invitedUser)) {
-            throw new UserAlreadyParticipantException();
-        }
-
-        ProjectUser projectUser = ProjectUser.builder()
-                .project(project)
-                .user(invitedUser)
-                .role(ProjectRole.PARTICIPANT)
-                .build();
-
-        log.info("User successfully invited: {}", req.getEmail());
-        projectUserRepository.save(projectUser);
-    }
-
+    @Transactional
     public void leaveProject(Long projectId, String token) {
         User user = userService.getAuthenticatedUser(token);
 
