@@ -31,6 +31,13 @@ public class WebSocketController {
         messagingTemplate.convertAndSend("/topic/chatroom/" + message.getProjectId(), message);
     }
 
+    @MessageMapping("/code")
+    public void receiveCode(ChatMessage message) {
+
+        // 해당 채팅방 구독자들에게 메시지 전송
+        messagingTemplate.convertAndSend("/topic/project/" + message.getProjectId(), message);
+    }
+
     //채팅 내역 조회
     @GetMapping("/chat/{projectId}")
     public ResponseEntity<List<Chat>> getChatHistory(@PathVariable Long projectId) {
