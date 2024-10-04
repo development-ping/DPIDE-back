@@ -75,6 +75,7 @@ public class ErrorHandlingController {
     protected ErrorResponse handleFileCreationException(FileOperationException e) {
         log.error("파일 작업에 실패하였습니다.");
         return buildError(ErrorCode.FILE_OPERATION_FAILED);
+    }
 
     @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
