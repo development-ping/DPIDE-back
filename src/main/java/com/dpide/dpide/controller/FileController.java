@@ -23,6 +23,7 @@ public class FileController {
     public ResponseEntity<FileDto.FileInfoRes> createFile(@PathVariable Long projectId,
                                                           @RequestBody FileDto.CreationReq req,
                                                           @RequestHeader("Authorization") String token) {
+        log.info("CALL: FileController.createFile");
         return ResponseEntity.ok(fileService.createFile(projectId, req, token));
     }
 
@@ -30,6 +31,7 @@ public class FileController {
     public ResponseEntity<Void> deleteFile(@PathVariable Long projectId,
                                            @PathVariable Long fileId,
                                            @RequestHeader("Authorization") String token) {
+        log.info("CALL: FileController.deleteFile");
         fileService.deleteFile(projectId, fileId, token);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -38,6 +40,7 @@ public class FileController {
     public ResponseEntity<InputStreamResource> getFile(@PathVariable Long projectId,
                                                        @PathVariable Long fileId,
                                                        @RequestHeader("Authorization") String token) throws IOException {
+        log.info("CALL: FileController.getFile");
         InputStreamResource resource = fileService.getFileContent(projectId, fileId, token);
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
@@ -47,9 +50,26 @@ public class FileController {
     @PutMapping("/projects/{projectId}/files/{fileId}")
     public ResponseEntity<FileDto.FileInfoRes> saveFile(@PathVariable Long projectId,
                                                         @PathVariable Long fileId,
-                                                        @RequestPart("content") String name,
                                                         @RequestPart("content") MultipartFile content,
                                                         @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(fileService.updateFile(projectId, fileId, name, content, token));
+        log.info("CALL: FileController.saveFile");
+        return ResponseEntity.ok(fileService.updateFile(projectId, fileId, content, token));
+    }
+
+    @GetMapping("/projects/{projectId}")
+    public ResponseEntity<FileDto.FileTreeListRes> getFileTree(@PathVariable Long projectId,
+                                                               @RequestHeader("Authorization") String token) {
+        log.info("CALL: FileController.getFileTree");
+        return ResponseEntity.ok(fileService.getFileTree(projectId, token));
+    }
+
+    @PostMapping("/projects/{projectId}/files/{fileId}")
+    public ResponseEntity<String> executeFile(@PathVariable Long projectId,
+                                              @PathVariable Long fileId,
+                                              @RequestBody String userInput,
+                                              @RequestHeader("Authorization") String token) {
+        log.info("CALL: FileController.executeFile");
+        String executionResult = fileService.executeFile(projectId, fileId, userInput, token);
+        return ResponseEntity.ok(executionResult);
     }
 }

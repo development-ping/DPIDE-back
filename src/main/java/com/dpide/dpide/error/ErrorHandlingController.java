@@ -63,6 +63,19 @@ public class ErrorHandlingController {
         return buildError(ErrorCode.PROJECT_OWNERSHIP);
     }
 
+    @ExceptionHandler(DuplicateFileNameException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleDuplicateFileNameException(DuplicateFileNameException e) {
+        log.error("이미 존재하는 파일명입니다.");
+        return buildError(ErrorCode.DUPLICATE_FILE_NAME);
+    }
+
+    @ExceptionHandler(FileOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleFileCreationException(FileOperationException e) {
+        log.error("파일 작업에 실패하였습니다.");
+        return buildError(ErrorCode.FILE_OPERATION_FAILED);
+
     @ExceptionHandler(InvalidTokenException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected ErrorResponse handleInvalidTokenException(InvalidTokenException e) {
