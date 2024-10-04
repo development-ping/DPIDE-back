@@ -48,6 +48,7 @@ public class FileService {
         Project project = validateProjectOwnership(projectId, user);
         File parentFile = validateParentFile(req.getParentId());
 
+        // TODO: 부모 폴더가 동일한 경우에만.. 예외 터지게 repository 메서드 수정하기. 지금은 부모 폴더가 다르더라도 터짐
         // 부모 폴더에 동일한 이름의 파일 or 폴더가 있는지 확인
         validateFileNameUniqueness(projectId, req.getParentId(), req.getName());
 
