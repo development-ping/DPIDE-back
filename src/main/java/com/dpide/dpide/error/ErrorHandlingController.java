@@ -104,4 +104,11 @@ public class ErrorHandlingController {
         log.warn("비밀번호가 틀렸습니다.");
         return buildError(ErrorCode.INCORRECT_PASSWORD);
     }
+
+    @ExceptionHandler(UserAlreadyParticipantException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleUserAlreadyParticipantException(UserAlreadyParticipantException e) {
+        log.warn("비밀번호가 틀렸습니다.");
+        return buildError(ErrorCode.INCORRECT_PASSWORD);
+    }
 }

@@ -53,4 +53,20 @@ public class ProjectController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/projects/{projectId}/invite")
+    public ResponseEntity<Void> inviteProject(@RequestHeader("Authorization") String token,
+                                              @RequestBody ProjectDto.ProjectInviteReq req) {
+        log.info("CALL: ProjectController.inviteProject");
+        projectService.inviteProject(req, token);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/projects/{projectId}/leave")
+    public ResponseEntity<Void> inviteProject(@RequestHeader("Authorization") String token,
+                                              @PathVariable Long projectId) {
+        log.info("CALL: ProjectController.leaveProject");
+        projectService.leaveProject(projectId, token);
+        return ResponseEntity.ok().build();
+    }
+
 }
