@@ -11,4 +11,5 @@ public class ChatMessage {
     private String sender;
     private String content;
     private Long projectId;
+    private Long userId;
 }

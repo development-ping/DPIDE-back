@@ -23,16 +23,12 @@ public class WebSocketController {
 
     // WebSocket을 통한 메시지 처리
     @MessageMapping("/message")
-    public void receiveMessage(ChatMessage message, @Header("simpSessionAttributes") Map<String, Object> attributes) {
-        // Handshake 시점에 저장된 userId를 이용해 처리
-        Long userId = (Long) attributes.get("userId");
-        Long projectId = message.getProjectId();
-
+    public void receiveMessage(ChatMessage message) {
         // 메시지 저장
-        chatService.saveMessage(message.getContent(), projectId, userId);
+        chatService.saveMessage(message.getContent(), message.getProjectId(), message.getUserId());
 
         // 해당 채팅방 구독자들에게 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chatroom/" + projectId, message);
+        messagingTemplate.convertAndSend("/topic/chatroom/" + message.getProjectId(), message);
     }
 
     //채팅 내역 조회

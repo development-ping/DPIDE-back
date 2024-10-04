@@ -20,7 +20,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // WebSocket 엔드포인트 등록
-        registry.addEndpoint("/ws").withSockJS();
-        registry.addEndpoint("/ws"); // 와 이거다 찾았다 개자식
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("*")
+                .withSockJS();
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("*"); // 와 이거다 찾았다 개자식
     }
 }
