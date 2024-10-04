@@ -2,10 +2,9 @@ package com.dpide.dpide.service;
 
 import com.dpide.dpide.domain.Project;
 import com.dpide.dpide.domain.ProjectRole;
+import com.dpide.dpide.domain.ProjectUser;
 import com.dpide.dpide.dto.ProjectDto;
-import com.dpide.dpide.exception.ProjectNotFoundException;
-import com.dpide.dpide.exception.ProjectOwnershipException;
-import com.dpide.dpide.exception.UserNotFoundException;
+import com.dpide.dpide.exception.*;
 import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.repository.ProjectUserRepository;
 import com.dpide.dpide.user.domain.User;
@@ -116,5 +115,52 @@ public class ProjectService {
                 .orElseThrow(() -> new ProjectOwnershipException(projectId, user.getId()));
 
         return project;
+    }
+
+    public void inviteProject(ProjectDto.ProjectInviteReq req , String token) {
+        // 초대한 사람
+        User inviter = userService.getAuthenticatedUser(token);
+
+        // 초대된 프로젝트
+        Project project = projectRepository.findById(req.getProjectId())
+                .orElseThrow(() -> new ProjectNotFoundException(req.getProjectId()));
+
+        // 초대한 사람이 소유권자인지 확인
+        ProjectUser projectOwner = projectUserRepository.findByProjectAndUserAndRole(project, inviter, ProjectRole.OWNER)
+                .orElseThrow(() -> new ProjectNotFoundException(project.getId()));
+
+        // 초대받은 유저 검색
+        User invitedUser = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new EmailNotFoundException(req.getEmail()));
+
+        // 이미 초대된 유저인지 확인
+        if (projectUserRepository.existsByProjectAndUser(project, invitedUser)) {
+            throw new UserAlreadyParticipantException();
+        }
+
+        ProjectUser projectUser = ProjectUser.builder()
+                .project(project)
+                .user(invitedUser)
+                .role(ProjectRole.PARTICIPANT)
+                .build();
+
+        log.info("User successfully invited: {}", req.getEmail());
+        projectUserRepository.save(projectUser);
+    }
+
+    public void leaveProject(Long projectId, String token) {
+        User user = userService.getAuthenticatedUser(token);
+
+        // 프로젝트 정보 가져오기
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        // 해당 유저가 속한 프로젝트 정보 가져오기
+        ProjectUser projectUser = projectUserRepository.findByProjectAndUserAndRole(project, user, ProjectRole.PARTICIPANT)
+                .orElseThrow(() -> new ProjectNotFoundException(project.getId()));
+
+        // 삭제
+        projectUserRepository.delete(projectUser);
+        log.info("User successfully left from the project");
     }
 }

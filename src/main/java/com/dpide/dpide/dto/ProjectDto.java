@@ -66,4 +66,14 @@ public class ProjectDto {
     public static class ProjectListRes {
         private List<ProjectInfoRes> projects;
     }
+
+    @Builder
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ProjectInviteReq {
+        private Long projectId;
+        private String email;
+    }
 }

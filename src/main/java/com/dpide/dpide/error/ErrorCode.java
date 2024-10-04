@@ -17,7 +17,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", "유효하지 않은 리프레시 토큰입니다", 400),
     EMAIL_NOT_FOUND("EMAIL_NOT_FOUND", "이메일을 찾을 수 없습니다.", 400),
     INCORRECT_PASSWORD("INCORRECT_PASSWORD", "비밀번호가 틀렸습니다.", 400),
-
+    USER_ALREADY_PARTICIPANT("USER_ALREADY_PARTICIPANT", "이미 참여중인 유저입니다", 400),
     ;
 
     private final String code;
