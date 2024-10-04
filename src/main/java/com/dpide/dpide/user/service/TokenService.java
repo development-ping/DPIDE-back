@@ -1,5 +1,6 @@
 package com.dpide.dpide.user.service;
 
+import com.dpide.dpide.exception.InvalidRefreshTokenException;
 import com.dpide.dpide.user.config.TokenProvider;
 import com.dpide.dpide.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -19,27 +20,39 @@ public class TokenService {
     private final UserService userService;
 
     // 리프레시 토큰으로 새 액세스 토큰을 생성하는 로직
+    // 리프레시 토큰으로 새 액세스 토큰을 생성하는 로직
     public String createNewAccessToken(String refreshToken) {
-        log.info("Received request to create a new Access Token using refresh token: {}", refreshToken);
+        log.info("Received request to create a new Access Token");
 
-        // 토큰 유효성 검사에 실패하면 예외 발생
-        if (!tokenProvider.validToken(refreshToken)) {
-            log.error("Invalid refresh token: {}", refreshToken);
-            throw new IllegalArgumentException("Unexpected token");
-        }
+        validateRefreshToken(refreshToken); // 리프레시 토큰 유효성 검사
 
-        log.info("Refresh token validated successfully");
-
-        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        log.info("Fetched user ID: {} using refresh token", userId);
-
-        User user = userService.findById(userId);
-        log.info("User information retrieved for ID: {}", userId);
+        Long userId = getUserIdFromRefreshToken(refreshToken);
+        User user = getUserById(userId);
 
         log.info("Creating new Access Token for user ID: {}", userId);
-        String newAccessToken = tokenProvider.generateToken(user, Duration.ofHours(2));
-        log.info("New Access Token created successfully for user ID: {}", userId);
-
-        return newAccessToken;
+        return tokenProvider.generateToken(user, Duration.ofHours(2));
     }
+
+    // 리프레시 토큰 유효성 검증
+    private void validateRefreshToken(String refreshToken) {
+        if (!tokenProvider.validToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+        log.info("Refresh token validated successfully");
+    }
+
+    // 리프레시 토큰에서 사용자 ID를 추출
+    private Long getUserIdFromRefreshToken(String refreshToken) {
+        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
+        log.info("Fetched user ID: {}", userId);
+        return userId;
+    }
+
+    // 사용자 ID로 사용자 정보 조회
+    private User getUserById(Long userId) {
+        User user = userService.findById(userId);
+        log.info("User information retrieved for ID: {}", userId);
+        return user;
+    }
+
 }

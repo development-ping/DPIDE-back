@@ -38,15 +38,8 @@ public class ErrorHandlingController {
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleDuplicateEmailException(DuplicateEmailException e) {
-        log.error("이미 존재하는 이메일입니다.");
+        log.error("이미 존재하는 이메일입니다. {}", e.getEmail());
         return buildError(ErrorCode.DUPLICATE_EMAIL);
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse handleAuthenticationException(AuthenticationException e) {
-        log.error("인증에 실패하였습니다.");
-        return buildError(ErrorCode.AUTHENTICATION_FAILED);
     }
 
     @ExceptionHandler(ProjectNotFoundException.class)
@@ -82,5 +75,32 @@ public class ErrorHandlingController {
     protected ErrorResponse handleFileCreationException(FileOperationException e) {
         log.error("파일 작업에 실패하였습니다.");
         return buildError(ErrorCode.FILE_OPERATION_FAILED);
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorResponse handleInvalidTokenException(InvalidTokenException e) {
+        log.error("유효하지 않은 JWT 토큰입니다.");
+        return buildError(ErrorCode.INVALID_TOKEN);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidRefreshTokenException(InvalidRefreshTokenException e) {
+        log.warn("유효하지 않은 리프레시 토큰입니다.");
+        return buildError(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
+
+    @ExceptionHandler(EmailNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    protected ErrorResponse handleEmailNotFoundException(EmailNotFoundException e) {
+        log.warn("이메일을 찾을 수 없습니다. : {}", e.getEmail());
+        return buildError(ErrorCode.EMAIL_NOT_FOUND);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorResponse handleIncorrectPasswordException(IncorrectPasswordException e) {
+        log.warn("비밀번호가 틀렸습니다.");
+        return buildError(ErrorCode.INCORRECT_PASSWORD);
     }
 }

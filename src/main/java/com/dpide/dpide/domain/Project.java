@@ -2,6 +2,7 @@ package com.dpide.dpide.domain;
 
 import com.dpide.dpide.dto.ProjectDto;
 import com.dpide.dpide.user.domain.User;
+import com.dpide.dpide.websocket.domain.Chat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
