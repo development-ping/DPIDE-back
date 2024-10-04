@@ -1,5 +1,6 @@
 package com.dpide.dpide.user.service;
 
+import com.dpide.dpide.exception.InvalidRefreshTokenException;
 import com.dpide.dpide.user.domain.RefreshToken;
 import com.dpide.dpide.user.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,31 +12,28 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class RefreshTokenService {
+
     private final RefreshTokenRepository refreshTokenRepository;
+
+    // 리프레시 토큰 삭제
+    @Transactional
+    public void deleteByToken(String refreshToken) {
+        log.info("Attempting to delete refresh token: {}", refreshToken);
+
+        // 토큰을 조회하고 바로 삭제
+        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(InvalidRefreshTokenException::new);
+        refreshTokenRepository.delete(token);
+
+        log.info("Refresh token deleted successfully: {}", refreshToken);
+    }
 
     // 리프레시 토큰 검색
     @Transactional(readOnly = true)
     public RefreshToken findByRefreshToken(String refreshToken) {
         log.info("Searching for refresh token: {}", refreshToken);
         return refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> {
-                    log.error("Refresh token not found: {}", refreshToken);
-                    return new IllegalArgumentException("Unexpected token");
-                });
-    }
-
-    // 리프레시 토큰 삭제
-    @Transactional
-    public void deleteByToken(String refreshToken) {
-        log.info("Attempting to delete refresh token: {}", refreshToken);
-        RefreshToken token = refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> {
-                    log.error("Refresh token not found for deletion: {}", refreshToken);
-                    return new IllegalArgumentException("Invalid refresh token");
-                });
-        log.info("Refresh token found for deletion: {}", refreshToken);
-        refreshTokenRepository.delete(token);
-        log.info("Refresh token deleted successfully: {}", refreshToken);
+                .orElseThrow(InvalidRefreshTokenException::new);
     }
 
     // 리프레시 토큰 저장

@@ -1,5 +1,6 @@
-package com.dpide.dpide.domain;
+package com.dpide.dpide.websocket.domain;
 
+import com.dpide.dpide.domain.Project;
 import com.dpide.dpide.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;

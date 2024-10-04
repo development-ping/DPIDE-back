@@ -1,6 +1,9 @@
 package com.dpide.dpide.user.domain;
 
 
+import com.dpide.dpide.domain.Project;
+import com.dpide.dpide.domain.ProjectUser;
+import com.dpide.dpide.websocket.domain.Chat;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -43,6 +46,18 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    // User가 삭제되면 관련된 프로젝트도 삭제됨
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
+
+    // User가 삭제되면 관련된 프로젝트-유저 연결도 삭제됨
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ProjectUser> projectUsers = new ArrayList<>();
+
+    // User가 삭제되면 관련된 채팅도 삭제됨
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
+
     @Builder
     public User(String email, String password, String nickname) {
         this.email = email;
@@ -67,22 +82,23 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;  // 만료되지 않았음을 의미
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;  // 잠금되지 않았음을 의미
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;  // 자격 증명이 만료되지 않았음을 의미
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;  // 활성화된 계정임을 의미
+        return true;
     }
 }
+
 
