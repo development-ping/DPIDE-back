@@ -108,7 +108,21 @@ public class ErrorHandlingController {
     @ExceptionHandler(UserAlreadyParticipantException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleUserAlreadyParticipantException(UserAlreadyParticipantException e) {
-        log.warn("비밀번호가 틀렸습니다.");
-        return buildError(ErrorCode.INCORRECT_PASSWORD);
+        log.warn("이미 참여중인 유저입니다.");
+        return buildError(ErrorCode.USER_ALREADY_PARTICIPANT);
+    }
+
+    @ExceptionHandler(InvalidAlarmIdException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleInvalidAlarmIdException(InvalidAlarmIdException e) {
+        log.warn("존재하지 않는 알람 ID 입니다.");
+        return buildError(ErrorCode.INVALID_ALARM);
+    }
+
+    @ExceptionHandler(DuplicateAlarmException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleDuplicateAlarmException(DuplicateAlarmException e) {
+        log.warn("이미 보낸 알림이 존재합니다.");
+        return buildError(ErrorCode.DUPLICATE_ALARM);
     }
 }
