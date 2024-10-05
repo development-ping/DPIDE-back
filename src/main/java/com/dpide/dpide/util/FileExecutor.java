@@ -13,27 +13,7 @@ import java.util.concurrent.*;
 public class FileExecutor {
     private static final long DEFAULT_TIMEOUT_SECONDS = 30;
 
-    public static String execute(String extension, String filePath, String userInput) {
-        return switch (extension) {
-            case "java" -> buildJavaCommand(filePath, userInput);
-            case "py" -> buildPythonCommand(filePath, userInput);
-            default -> throw new UnsupportedFileTypeException(extension);
-        };
-    }
-    // Java 실행 명령어 생성
-    private static String buildJavaCommand(String filePath, String userInput) {
-        String command = "java " + filePath;
-        return executeCommand(command, userInput);
-    }
-
-    // Python 실행 명령어 생성
-    private static String buildPythonCommand(String filePath, String userInput) {
-        String command = "python3 " + filePath;
-        return executeCommand(command, userInput);
-    }
-
-    // 명령어 실행 로직 (공통)
-    private static String executeCommand(String command, String userInput) {
+    public static String executeCommand(String command, String userInput) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> {
             ProcessBuilder builder = new ProcessBuilder(command.split(" "));

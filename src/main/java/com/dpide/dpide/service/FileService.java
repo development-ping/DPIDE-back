@@ -10,6 +10,7 @@ import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import com.dpide.dpide.user.service.UserService;
+import com.dpide.dpide.util.CommandBuilder;
 import com.dpide.dpide.util.FileExecutor;
 import com.dpide.dpide.util.FileUtility;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,6 @@ public class FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final FileExecutor fileExecutor;
 
     @Transactional
     public FileDto.FileInfoRes createFile(Long projectId, FileDto.CreationReq req, String token) {
@@ -49,7 +49,6 @@ public class FileService {
         Project project = validateProjectOwnership(projectId, user);
         File parentFile = validateParentFile(req.getParentId());
 
-        // TODO: 부모 폴더가 동일한 경우에만.. 예외 터지게 repository 메서드 수정하기. 지금은 부모 폴더가 다르더라도 터짐
         // 부모 폴더에 동일한 이름의 파일 or 폴더가 있는지 확인
         validateFileNameUniqueness(projectId, req.getParentId(), req.getName());
 
@@ -148,7 +147,6 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
 
-        // TODO: FileUtility로 파일 관련 메서드 빼기...
         // 실제 파일 경로 가져오기
         String basePath = generatePath(userId, projectId, file.getPath());
         String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
@@ -179,10 +177,12 @@ public class FileService {
         String basePath = generatePath(userId, projectId, file.getPath());
         String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
 
-        // 파일 실행
         String input = userInput.get("userInput");
         log.info("FileService.execute() -> User input: {}", input);
-        return FileExecutor.execute(file.getExtension(), filePath, input);
+
+        // 파일 실행
+        String command = CommandBuilder.buildCommand(file.getExtension(), filePath);
+        return FileExecutor.executeCommand(command, input);
     }
 
     private User validateUser(Long userId) {
