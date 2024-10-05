@@ -49,7 +49,7 @@ public class WebSocketController {
 
 
     // 특정 프로젝트에서 키워드를 포함하는 메시지 검색
-    @GetMapping("/chat/search")
+    @PostMapping("/chat/search")
     public ResponseEntity<ChatDto.ChatListRes> searchMessages(@RequestBody ChatDto.ChatSearch chatSearch) {
         // 서비스에서 ChatListRes를 받아 반환
         ChatDto.ChatListRes chatListRes = chatService.searchMessagesByKeyword(chatSearch);
