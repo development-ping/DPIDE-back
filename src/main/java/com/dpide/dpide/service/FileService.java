@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.dpide.dpide.util.FileUtility.*;
@@ -163,7 +164,7 @@ public class FileService {
         return FileDto.FileInfoRes.of(file);
     }
 
-    public String executeFile(Long projectId, Long fileId, String userInput, String token) {
+    public String executeFile(Long projectId, Long fileId, Map<String, String> userInput, String token) {
         log.info("Executing file with id: {}", fileId);
 
         // 유저 인증
@@ -178,9 +179,10 @@ public class FileService {
         String basePath = generatePath(userId, projectId, file.getPath());
         String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
 
-        //TODO: 파일 실행 결과 반환 (FileExecutor 사용)
-
-        return "";
+        // 파일 실행
+        String input = userInput.get("userInput");
+        log.info("FileService.execute() -> User input: {}", input);
+        return FileExecutor.execute(file.getExtension(), filePath, input);
     }
 
     private User validateUser(Long userId) {
