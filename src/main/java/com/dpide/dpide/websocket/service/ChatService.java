@@ -56,7 +56,7 @@ public class ChatService {
         // Chat 엔티티를 ChatInfo DTO로 변환
         List<ChatDto.ChatInfo> chatInfoList = chatPage.getContent().stream()
                 .map(chat -> ChatDto.ChatInfo.builder()
-                        .senderName(chat.getUser().getUsername())  // 보낸 사람 이름
+                        .senderName(chat.getUser().getNickname())  // 보낸 사람 이름
                         .content(chat.getContent())                  // 채팅 내용
                         .createdAt(chat.getCreatedAt())              // 채팅 생성 시간
                         .build()
@@ -78,7 +78,7 @@ public class ChatService {
         // Chat 엔티티를 ChatInfo DTO로 변환
         List<ChatDto.ChatInfo> chatInfoList = messages.stream()
                 .map(chat -> ChatDto.ChatInfo.builder()
-                        .senderName(chat.getUser().getUsername())  // 보낸 사람 이름
+                        .senderName(chat.getUser().getNickname())  // 보낸 사람 이름
                         .content(chat.getContent())                  // 채팅 내용
                         .createdAt(chat.getCreatedAt())              // 채팅 생성 시간
                         .build()

@@ -1,6 +1,5 @@
 package com.dpide.dpide.websocket.controller;
 
-import com.dpide.dpide.websocket.domain.Chat;
 import com.dpide.dpide.websocket.dto.ChatDto;
 import com.dpide.dpide.websocket.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +30,13 @@ public class WebSocketController {
 
         // 해당 채팅방 구독자들에게 메시지 전송
         messagingTemplate.convertAndSend("/topic/project/" + message.getProjectId(), message);
+    }
+
+    @MessageMapping("/join")
+    public void receiveJoinMessage(ChatDto.ChatMessage message) {
+
+        // 해당 채팅방 구독자들에게 메시지 전송
+        messagingTemplate.convertAndSend("/topic/join/" + message.getProjectId(), message);
     }
 
     //채팅 내역 조회
