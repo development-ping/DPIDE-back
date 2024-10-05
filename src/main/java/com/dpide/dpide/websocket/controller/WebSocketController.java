@@ -39,6 +39,13 @@ public class WebSocketController {
         messagingTemplate.convertAndSend("/topic/join/" + message.getProjectId(), message);
     }
 
+    @MessageMapping("/request")
+    public void receiveRequest(ChatDto.ChatMessage message) {
+
+        // 해당 채팅방 구독자들에게 메시지 전송
+        messagingTemplate.convertAndSend("/topic/request/" + message.getProjectId(), message);
+    }
+
     //채팅 내역 조회
     @GetMapping("/chat/{projectId}")
     public ResponseEntity<ChatDto.ChatListRes> getChatHistory(@PathVariable Long projectId) {
@@ -49,7 +56,7 @@ public class WebSocketController {
 
 
     // 특정 프로젝트에서 키워드를 포함하는 메시지 검색
-    @GetMapping("/chat/search")
+    @PostMapping("/chat/search")
     public ResponseEntity<ChatDto.ChatListRes> searchMessages(@RequestBody ChatDto.ChatSearch chatSearch) {
         // 서비스에서 ChatListRes를 받아 반환
         ChatDto.ChatListRes chatListRes = chatService.searchMessagesByKeyword(chatSearch);
