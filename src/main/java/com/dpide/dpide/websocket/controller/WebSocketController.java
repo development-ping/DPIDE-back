@@ -50,13 +50,6 @@ public class WebSocketController {
         messagingTemplate.convertAndSend("/topic/request/" + message.getProjectId(), message);
     }
 
-    @MessageMapping("/request")
-    public void receiveJoinMessage(ChatDto.ChatMessage message) {
-
-        // 해당 채팅방 구독자들에게 메시지 전송
-        messagingTemplate.convertAndSend("/topic/request/" + message.getProjectId(), message);
-    }
-
     //채팅 내역 조회
     @GetMapping("/chat/{projectId}")
     public ResponseEntity<ChatDto.ChatListRes> getChatHistory(@PathVariable Long projectId) {
