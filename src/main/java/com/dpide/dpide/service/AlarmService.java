@@ -78,7 +78,7 @@ public class AlarmService {
         List<AlarmDto.AlarmInfo> alarmInfoList = alarmRepository.findAllByRecipient(recipient).stream()
                 .map(alarm -> AlarmDto.AlarmInfo.builder()
                         .id(alarm.getId())                         // 알람 ID
-                        .senderName(alarm.getSender().getUsername()) // 보낸 사람 이름
+                        .senderName(alarm.getSender().getNickname()) // 보낸 사람 이름
                         .projectName(alarm.getProject().getName())   // 프로젝트 이름
                         .isRead(alarm.isRead())                      // 읽음 여부
                         .build()
