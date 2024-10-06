@@ -1,6 +1,8 @@
 FROM openjdk:17-jdk-slim as builder
 
-ENV APP_HOME=/apps
+RUN apt-get update && apt-get install -y python3
+
+ENV APP_HOME=/appsㅁ
 WORKDIR $APP_HOME
 
 COPY gradlew $APP_HOME
