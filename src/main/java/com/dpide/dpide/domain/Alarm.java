@@ -31,6 +31,7 @@ public class Alarm {
     private User sender;
 
     // 읽음 여부
+    @Builder.Default
     @Column(nullable = false)
     private boolean isRead = false;
 
