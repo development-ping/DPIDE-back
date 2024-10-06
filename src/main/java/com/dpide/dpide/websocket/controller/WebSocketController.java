@@ -3,11 +3,13 @@ package com.dpide.dpide.websocket.controller;
 import com.dpide.dpide.websocket.dto.ChatDto;
 import com.dpide.dpide.websocket.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class WebSocketController {
@@ -34,9 +36,18 @@ public class WebSocketController {
 
     @MessageMapping("/join")
     public void receiveJoinMessage(ChatDto.ChatMessage message) {
-
+        log.info("Received join message from user: {}, projectId: {}, message content: {}",
+                message.getSender(), message.getProjectId(), message.getContent());
         // 해당 채팅방 구독자들에게 메시지 전송
         messagingTemplate.convertAndSend("/topic/join/" + message.getProjectId(), message);
+        log.info("Sent join message to /topic/join/{}", message.getProjectId());
+    }
+
+    @MessageMapping("/request")
+    public void receiveRequest(ChatDto.ChatMessage message) {
+
+        // 해당 채팅방 구독자들에게 메시지 전송
+        messagingTemplate.convertAndSend("/topic/request/" + message.getProjectId(), message);
     }
 
     @MessageMapping("/request")
