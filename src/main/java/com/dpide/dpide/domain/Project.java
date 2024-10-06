@@ -58,6 +58,9 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectUser> projectUsers;
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alarm> alarms;
+
     public static Project of(ProjectDto.CreationReq req, User user) {
         return Project.builder()
                 .name(req.getName())

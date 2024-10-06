@@ -36,7 +36,7 @@ public class Alarm {
     private boolean isRead = false;
 
     // 초대받은 프로젝트 정보
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "project_id", nullable = false, foreignKey = @ForeignKey(name = "fk_notification_project"))
     private Project project;
 
