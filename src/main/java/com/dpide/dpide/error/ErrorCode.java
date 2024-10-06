@@ -20,6 +20,7 @@ public enum ErrorCode {
     USER_ALREADY_PARTICIPANT("USER_ALREADY_PARTICIPANT", "이미 참여중인 유저입니다.", 400),
     INVALID_ALARM("INVALID_ALARM", "존재하지 않는 알람 ID 입니다.", 400),
     DUPLICATE_ALARM("DUPLICATE_ALARM", "이미 보낸 알림이 존재합니다.", 400),
+    UNSUPPORTED_FILE_TYPE("UNSUPPORTED_FILE_TYPE", "지원하지 않는 파일 형식입니다.", 400),
     ;
 
     private final String code;
