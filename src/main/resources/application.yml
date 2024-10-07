@@ -2,6 +2,7 @@ spring:
   application:
     name: dpide
 
+  # TODO: db를 mysql로 변경하기
   datasource:
     url: jdbc:h2:mem:dpide
     driver-class-name: org.h2.Driver
