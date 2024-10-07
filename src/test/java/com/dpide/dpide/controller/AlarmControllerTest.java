@@ -26,7 +26,26 @@ class AlarmControllerTest {
     @MockBean
     AlarmService alarmService;
 
-    
+    @Test
+    @DisplayName("POST /alarm success")
+    void makeInviteAlarm_Success() throws Exception {
+        // Given
+        String token = "Bearer dummyToken";
+        AlarmDto.InviteReq inviteReq = AlarmDto.InviteReq.builder()
+                .email("dummyEmail")
+                .projectId(2L)
+                .build();
+
+        // When & Then
+        mockMvc.perform(post("/alarm")
+                        .header("Authorization", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inviteReq)))
+                .andExpect(status().isOk());
+
+        // verify
+        verify(alarmService, times(1)).makeInviteAlarm(any(AlarmDto.InviteReq.class), eq(token));
+    }
 
     @Test
     void getAlarms() {
