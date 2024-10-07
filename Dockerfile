@@ -1,5 +1,7 @@
 FROM openjdk:17-jdk-slim as builder
 
+RUN apt-get update && apt-get install -y python3
+
 ENV APP_HOME=/apps
 WORKDIR $APP_HOME
 

@@ -12,9 +12,12 @@ import java.util.concurrent.*;
 @Component
 public class FileExecutor {
     private static final long DEFAULT_TIMEOUT_SECONDS = 30;
+    private static final int THREAD_POOL_SIZE = 10;
+
+    // 스레드 풀 생성
+    private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     public static String executeCommand(String command, String userInput) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> {
             ProcessBuilder builder = new ProcessBuilder(command.split(" "));
             builder.redirectErrorStream(true);
@@ -49,8 +52,6 @@ public class FileExecutor {
             return "Time Out: 파일 실행 시간이 초과되었습니다.";
         } catch (Exception e) {
             return "파일 실행 중 오류가 발생했습니다: " + e.getMessage();
-        } finally {
-            executor.shutdown();
         }
     }
 }
