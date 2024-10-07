@@ -1,7 +1,11 @@
 package com.dpide.dpide.service;
 
+import com.dpide.dpide.domain.Alarm;
 import com.dpide.dpide.domain.Project;
+import com.dpide.dpide.domain.ProjectRole;
+import com.dpide.dpide.domain.ProjectUser;
 import com.dpide.dpide.dto.AlarmDto;
+import com.dpide.dpide.exception.*;
 import com.dpide.dpide.repository.AlarmRepository;
 import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.repository.ProjectUserRepository;
@@ -11,11 +15,19 @@ import com.dpide.dpide.user.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
 
 class AlarmServiceTest {
     AlarmService alarmService;
@@ -32,9 +44,45 @@ class AlarmServiceTest {
     public void setUpTest(){
         alarmService = new AlarmService(alarmRepository, userService, projectRepository, userRepository, projectUserRepository);
 
-        
+        sender = User.builder()
+                .id(1L)
+                .email("dummy email 1")
+                .nickname("dummy nickname 1")
+                .password("dummy password 1")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
+        invitedUser = User.builder()
+                .id(2L)
+                .email("dummy email 2")
+                .nickname("dummy nickname 2")
+                .password("dummy password 2")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
+        User user = User.builder()
+                .email("dummy email3")
+                .password("dummy password 3")
+                .nickname("dummy nickname 3")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        // 더미 Project 객체 생성
+        project = Project.builder()
+                .name("dummy name 4")
+                .description("dummy desc 4")
+                .language("dummy language")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .user(user)
+                .files(new ArrayList<>()) // 빈 파일 리스트
+                .chats(new ArrayList<>()) // 빈 채팅 리스트
+                .projectUsers(new ArrayList<>()) // 빈 프로젝트 사용자 리스트
+                .alarms(new ArrayList<>()) // 빈 알림 리스트
+                .build();
     }
     @Test
     void makeInviteAlarm_Success() {
@@ -98,6 +146,56 @@ class AlarmServiceTest {
     }
 
     @Test
+    void makeInviteAlarm_ProjectNotFound() {
+        // Given
+        AlarmDto.InviteReq req = new AlarmDto.InviteReq(1L, "invited@example.com");
+
+        given(userService.getAuthenticatedUser(anyString())).willReturn(sender);
+        // 프로젝트가 존재하지 않을 경우
+        given(projectRepository.findById(req.getProjectId())).willReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ProjectNotFoundException.class, () -> {
+            alarmService.makeInviteAlarm(req, "token");
+        });
+    }
+
+    @Test
+    void makeInviteAlarm_UserNotOwner() {
+        // Given
+        AlarmDto.InviteReq req = new AlarmDto.InviteReq(1L, "invited@example.com");
+
+        given(userService.getAuthenticatedUser(anyString())).willReturn(sender);
+        given(projectRepository.findById(req.getProjectId())).willReturn(Optional.of(project));
+        // 초대자가 소유자가 아닐 경우
+        given(projectUserRepository.findByProjectAndUserAndRole(project, sender, ProjectRole.OWNER))
+                .willReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(ProjectNotFoundException.class, () -> {
+            alarmService.makeInviteAlarm(req, "token");
+        });
+    }
+
+    @Test
+    void makeInviteAlarm_EmailNotFound() {
+        // Given
+        AlarmDto.InviteReq req = new AlarmDto.InviteReq(1L, "invited@example.com");
+
+        given(userService.getAuthenticatedUser(anyString())).willReturn(sender);
+        given(projectRepository.findById(req.getProjectId())).willReturn(Optional.of(project));
+        given(projectUserRepository.findByProjectAndUserAndRole(project, sender, ProjectRole.OWNER))
+                .willReturn(Optional.of(new ProjectUser()));
+        // 초대받은 유저가 존재하지 않을 경우
+        given(userRepository.findByEmail(req.getEmail())).willReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(EmailNotFoundException.class, () -> {
+            alarmService.makeInviteAlarm(req, "token");
+        });
+    }
+
+    @Test
     void getAlarms_Success() {
         // Given
         given(userService.getAuthenticatedUser(anyString())).willReturn(invitedUser);
@@ -111,8 +209,8 @@ class AlarmServiceTest {
 
         // Then
         assertEquals(2, response.getAlarmInfoList().size());
-        assertEquals("Sender", response.getAlarmInfoList().get(0).getSenderName());
-        assertEquals("Test Project", response.getAlarmInfoList().get(0).getProjectName());
+        assertEquals("dummy nickname 1", response.getAlarmInfoList().get(0).getSenderName());
+        assertEquals("dummy name 4", response.getAlarmInfoList().get(0).getProjectName());
     }
 
     @Test
