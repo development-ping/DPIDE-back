@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FileRepository extends JpaRepository<File, Long> {
-    // 특정 프로젝트의 모든 파일 목록 조회 (파일 목록 read 기능 시 호출)
-    List<File> findByProjectId(Long projectId);
-
     // 특정 프로젝트의 부모 파일이 같은 디렉토리 안에 동일한 이름의 파일이 있는지 확인
     Optional<File> findByProjectIdAndParentFileIdAndName(Long projectId, Long parentId, String name);
 

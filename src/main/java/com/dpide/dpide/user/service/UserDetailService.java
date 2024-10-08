@@ -1,7 +1,6 @@
 package com.dpide.dpide.user.service;
 
 import com.dpide.dpide.exception.EmailNotFoundException;
-import com.dpide.dpide.exception.UserNotFoundException;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

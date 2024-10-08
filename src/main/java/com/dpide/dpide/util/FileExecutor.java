@@ -1,6 +1,5 @@
 package com.dpide.dpide.util;
 
-import com.dpide.dpide.exception.UnsupportedFileTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
