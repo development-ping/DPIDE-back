@@ -38,7 +38,6 @@ class AlarmControllerTest {
     AlarmService alarmService;
 
     @Test
-    @DisplayName("POST /alarm success")
     @WithMockUser
         // 인증된 사용자로 설정
     void makeInviteAlarm_Success() throws Exception {
@@ -60,7 +59,6 @@ class AlarmControllerTest {
     }
 
     @Test
-    @DisplayName("GET /alarm success")
     @WithMockUser
         // 인증된 사용자로 설정
     void getAlarms_Success() throws Exception {
@@ -72,7 +70,6 @@ class AlarmControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /alarm/{alarmId}/deny success")
     @WithMockUser
         // 인증된 사용자로 설정
     void denyInvite_Success() throws Exception {
@@ -86,7 +83,6 @@ class AlarmControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /alarm/{alarmId}/accept success")
     @WithMockUser
         // 인증된 사용자로 설정
     void acceptInvite_Success() throws Exception {

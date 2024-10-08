@@ -46,7 +46,6 @@ class FileControllerTest {
     private String token = "Bearer 123";
 
     @Test
-    @DisplayName("POST /projects/{projectId}/files success")
     @WithMockUser
     void createFile_Success() throws Exception {
         Long projectId = 1L;
@@ -85,7 +84,6 @@ class FileControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /projects/{projectId}/files/{fileId} success")
     @WithMockUser
     void deleteFile_Success() throws Exception {
         Long projectId = 1L;
@@ -100,7 +98,6 @@ class FileControllerTest {
     }
 
     @Test
-    @DisplayName("GET /projects/{projectId}/files/{fileId} success")
     @WithMockUser
     void getFile_Success() throws Exception {
         Long projectId = 1L;
@@ -120,7 +117,6 @@ class FileControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /projects/{projectId}/files/{fileId} success")
     @WithMockUser
     void saveFile_Success() throws Exception {
         Long projectId = 1L;
@@ -153,7 +149,6 @@ class FileControllerTest {
     }
 
     @Test
-    @DisplayName("GET /projects/{projectId} success")
     @WithMockUser
     void getFileTree_Success() throws Exception {
         Long projectId = 1L;
@@ -170,7 +165,6 @@ class FileControllerTest {
     }
 
     @Test
-    @DisplayName("POST /projects/{projectId}/files/{fileId} execute success")
     @WithMockUser
     void executeFile_Success() throws Exception {
         Long projectId = 1L;

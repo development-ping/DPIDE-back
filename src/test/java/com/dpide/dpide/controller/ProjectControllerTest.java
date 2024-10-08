@@ -41,7 +41,6 @@ class ProjectControllerTest {
     private final String token = "Bearer someToken";
 
     @Test
-    @DisplayName("POST /projects success")
     @WithMockUser
     void createProject_Success() throws Exception {
         // Given
@@ -75,7 +74,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("GET /projects success")
     @WithMockUser
     void getProjects_Success() throws Exception {
         // Given
@@ -94,7 +92,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("GET /projects/invited success")
     @WithMockUser
     void getInvitedProjects_Success() throws Exception {
         // Given
@@ -113,7 +110,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("PUT /projects/{projectId} success")
     @WithMockUser
     void updateProject_Success() throws Exception {
         // Given
@@ -143,7 +139,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /projects/{projectId} success")
     @WithMockUser
     void deleteProject_Success() throws Exception {
         // Given
@@ -157,7 +152,6 @@ class ProjectControllerTest {
     }
 
     @Test
-    @DisplayName("POST /projects/{projectId}/leave success")
     @WithMockUser
     void leaveProject_Success() throws Exception {
         // Given
