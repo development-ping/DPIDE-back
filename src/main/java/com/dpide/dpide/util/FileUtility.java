@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileUtility {
-    public static String BASE_PATH = "/tmp/user_files"; // Docker 컨테이너의 유저 파일 임시 저장 경로
+    public static String BASE_PATH = "/user_files"; // Docker 컨테이너의 유저 파일 저장 경로
 
     // 프로젝트 경로 생성 메서드
     public static String generatePath(Long userId, Long projectId, String path) {

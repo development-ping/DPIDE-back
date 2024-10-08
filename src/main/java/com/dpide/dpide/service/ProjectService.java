@@ -28,6 +28,9 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
 
+    // controller <-> service <- repository(interface, DIP)
+    // 의존성은 한방향으로 하는게 좋다..
+
     @Transactional
     public ProjectDto.ProjectInfoRes createProject(ProjectDto.CreationReq req, String token) {
         log.info("Creating a new project with name: {}", req.getName());
