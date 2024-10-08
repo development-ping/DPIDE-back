@@ -23,4 +23,4 @@ logging:
 
 jwt:
   issuer: dpide
-  secret_key: test-version-serect-keyjejsndskadlwkmkaslckjaskldasadjkajwkhajkhk
+  secret_key:
