@@ -58,6 +58,13 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
 
+    // User가 삭제되면 관련된 알림도 삭제됨
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Alarm> receivedAlarms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Alarm> sentAlarms = new ArrayList<>();
+
     @Builder
     public User(String email, String password, String nickname) {
         this.email = email;
