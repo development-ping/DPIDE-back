@@ -8,10 +8,6 @@ spring:
     username: root
     password: 1234
 
-  h2:
-    console:
-      enabled: false
-
   jpa:
     hibernate.ddl-auto: create
     show-sql: true
