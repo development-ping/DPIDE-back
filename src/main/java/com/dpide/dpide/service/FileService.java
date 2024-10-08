@@ -124,6 +124,7 @@ public class FileService {
         // 실제 파일 경로 가져오기 (도커 컨테이너 내부 경로)
         String basePath = generatePath(userId, projectId, file.getPath());
         String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
+
         java.io.File fileToRead = new java.io.File(filePath);
 
         // 파일이 존재하는지 확인
