@@ -26,7 +26,6 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
-                .requestMatchers(toH2Console()) // 배포 시 삭제할 것
                 .requestMatchers(new AntPathRequestMatcher("/static/**"));
     }
 
