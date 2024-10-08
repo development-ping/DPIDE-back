@@ -36,7 +36,6 @@ public class FileUtility {
     public static void createNewFile(String path, String fileName) {
         File newFile = new File(path);
 
-        System.out.println(path);
         if (newFile.exists()) {
             throw new FileOperationException(fileName);
         }
