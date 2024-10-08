@@ -1,6 +1,7 @@
 package com.dpide.dpide.user.domain;
 
 
+import com.dpide.dpide.domain.Alarm;
 import com.dpide.dpide.domain.Project;
 import com.dpide.dpide.domain.ProjectUser;
 import com.dpide.dpide.websocket.domain.Chat;
