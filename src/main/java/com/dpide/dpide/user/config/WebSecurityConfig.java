@@ -13,8 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,7 +24,6 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
-                .requestMatchers(toH2Console()) // 배포 시 삭제할 것
                 .requestMatchers(new AntPathRequestMatcher("/static/**"));
     }
 
@@ -37,7 +34,7 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/login", "/user/register", "/user/token", "/ws/**", "ws").permitAll() // 로그인, 회원가입은 허용
+                        .requestMatchers("/user/login", "/user/register", "/user/token", "/ws/**", "/ws", "/health-check").permitAll() // 로그인, 회원가입은 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // JWT 필터 추가

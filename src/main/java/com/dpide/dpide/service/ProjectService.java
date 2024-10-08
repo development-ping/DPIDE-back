@@ -2,15 +2,15 @@ package com.dpide.dpide.service;
 
 import com.dpide.dpide.domain.Project;
 import com.dpide.dpide.domain.ProjectRole;
+import com.dpide.dpide.domain.ProjectUser;
 import com.dpide.dpide.dto.ProjectDto;
-import com.dpide.dpide.exception.ProjectNotFoundException;
-import com.dpide.dpide.exception.ProjectOwnershipException;
-import com.dpide.dpide.exception.UserNotFoundException;
+import com.dpide.dpide.exception.*;
 import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.repository.ProjectUserRepository;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import com.dpide.dpide.user.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -28,6 +28,10 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
 
+    // controller <-> service <- repository(interface, DIP)
+    // 의존성은 한방향으로 하는게 좋다..
+
+    @Transactional
     public ProjectDto.ProjectInfoRes createProject(ProjectDto.CreationReq req, String token) {
         log.info("Creating a new project with name: {}", req.getName());
 
@@ -44,6 +48,7 @@ public class ProjectService {
         return ProjectDto.ProjectInfoRes.of(savedProject);
     }
 
+    @Transactional
     public List<ProjectDto.ProjectInfoRes> getProjects(String token) {
         log.info("Getting projects");
         Long userId = userService.getAuthenticatedUser(token).getId();
@@ -54,6 +59,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional
     public List<ProjectDto.ProjectInfoRes> getInvitedProjects(String token) {
         log.info("Getting invited projects");
         Long userId = userService.getAuthenticatedUser(token).getId();
@@ -65,6 +71,7 @@ public class ProjectService {
                 .toList();
     }
 
+    @Transactional
     public ProjectDto.ProjectInfoRes updateProject(Long projectId, ProjectDto.UpdateReq req, String token) {
         log.info("Updating project with id: {}", projectId);
 
@@ -84,6 +91,7 @@ public class ProjectService {
         return ProjectDto.ProjectInfoRes.of(updatedProject);
     }
 
+    @Transactional
     public void deleteProject(Long projectId, String token) {
         log.info("Deleting project with id: {}", projectId);
 
@@ -116,5 +124,22 @@ public class ProjectService {
                 .orElseThrow(() -> new ProjectOwnershipException(projectId, user.getId()));
 
         return project;
+    }
+
+    @Transactional
+    public void leaveProject(Long projectId, String token) {
+        User user = userService.getAuthenticatedUser(token);
+
+        // 프로젝트 정보 가져오기
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        // 해당 유저가 속한 프로젝트 정보 가져오기
+        ProjectUser projectUser = projectUserRepository.findByProjectAndUserAndRole(project, user, ProjectRole.PARTICIPANT)
+                .orElseThrow(() -> new ProjectNotFoundException(project.getId()));
+
+        // 삭제
+        projectUserRepository.delete(projectUser);
+        log.info("User successfully left from the project");
     }
 }

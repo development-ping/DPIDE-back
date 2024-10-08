@@ -3,7 +3,6 @@ package com.dpide.dpide.error;
 import com.dpide.dpide.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -103,5 +102,33 @@ public class ErrorHandlingController {
     protected ErrorResponse handleIncorrectPasswordException(IncorrectPasswordException e) {
         log.warn("비밀번호가 틀렸습니다.");
         return buildError(ErrorCode.INCORRECT_PASSWORD);
+    }
+
+    @ExceptionHandler(UserAlreadyParticipantException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleUserAlreadyParticipantException(UserAlreadyParticipantException e) {
+        log.warn("이미 참여중인 유저입니다.");
+        return buildError(ErrorCode.USER_ALREADY_PARTICIPANT);
+    }
+
+    @ExceptionHandler(InvalidAlarmIdException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleInvalidAlarmIdException(InvalidAlarmIdException e) {
+        log.warn("존재하지 않는 알람 ID 입니다.");
+        return buildError(ErrorCode.INVALID_ALARM);
+    }
+
+    @ExceptionHandler(DuplicateAlarmException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleDuplicateAlarmException(DuplicateAlarmException e) {
+        log.warn("이미 보낸 알림이 존재합니다.");
+        return buildError(ErrorCode.DUPLICATE_ALARM);
+    }
+
+    @ExceptionHandler(UnsupportedFileTypeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleUnsupportedFileTypeException(UnsupportedFileTypeException e) {
+        log.warn("지원하지 않는 파일 형식입니다.");
+        return buildError(ErrorCode.UNSUPPORTED_FILE_TYPE);
     }
 }

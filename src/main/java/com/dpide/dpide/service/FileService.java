@@ -10,6 +10,7 @@ import com.dpide.dpide.repository.ProjectRepository;
 import com.dpide.dpide.user.domain.User;
 import com.dpide.dpide.user.repository.UserRepository;
 import com.dpide.dpide.user.service.UserService;
+import com.dpide.dpide.util.CommandBuilder;
 import com.dpide.dpide.util.FileExecutor;
 import com.dpide.dpide.util.FileUtility;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.dpide.dpide.util.FileUtility.*;
@@ -35,7 +37,6 @@ public class FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final FileExecutor fileExecutor;
 
     @Transactional
     public FileDto.FileInfoRes createFile(Long projectId, FileDto.CreationReq req, String token) {
@@ -48,19 +49,20 @@ public class FileService {
         Project project = validateProjectOwnership(projectId, user);
         File parentFile = validateParentFile(req.getParentId());
 
-        // TODO: 부모 폴더가 동일한 경우에만.. 예외 터지게 repository 메서드 수정하기. 지금은 부모 폴더가 다르더라도 터짐
         // 부모 폴더에 동일한 이름의 파일 or 폴더가 있는지 확인
         validateFileNameUniqueness(projectId, req.getParentId(), req.getName());
 
-        // 프로젝트 디렉터리 생성
-        String projectPath = generateProjectPath(userId, projectId);
-        createDirectory(projectPath);
+        // 디렉터리 생성
+        String basePath = generatePath(userId, projectId, req.getPath());
+        createDirectory(basePath);
 
         // 파일 or 폴더 생성
         if (isFile(req.getExtension())) {
-            createNewFile(projectPath, req.getName(), req.getExtension());
+            String filePath = generateFilePath(basePath, req.getName(), req.getExtension());
+            createNewFile(filePath, req.getName());
         } else {
-            createNewFolder(projectPath, req.getName());
+            String folderPath = generateFolderPath(basePath, req.getName());
+            createNewFolder(folderPath, req.getName());
         }
 
         File file = fileRepository.save(File.of(req, project, parentFile));
@@ -80,11 +82,13 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
 
+        // 공통 경로 생성
+        String basePath = generatePath(userId, projectId, file.getPath());
+
         // 파일 or 폴더 경로 생성
-        String path = generateFolderPath(userId, projectId, file.getName());
-        if (isFile(file.getExtension())) {
-            path += "." + file.getExtension();
-        }
+        String path = isFile(file.getExtension())
+                ? generateFilePath(basePath, file.getName(), file.getExtension())
+                : generateFolderPath(basePath, file.getName());
 
         // 파일 or 폴더 삭제
         FileUtility.deleteFileOrDirectory(path);
@@ -118,7 +122,8 @@ public class FileService {
                 .orElseThrow(() -> new FileNotFoundException(fileId));
 
         // 실제 파일 경로 가져오기 (도커 컨테이너 내부 경로)
-        String filePath = generateFilePath(userId, projectId, file.getName(), file.getExtension());
+        String basePath = generatePath(userId, projectId, file.getPath());
+        String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
         java.io.File fileToRead = new java.io.File(filePath);
 
         // 파일이 존재하는지 확인
@@ -142,9 +147,9 @@ public class FileService {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException(fileId));
 
-        // TODO: FileUtility로 파일 관련 메서드 빼기...
-        // 실제 파일 경로 가져오기 (FileUtility 사용)
-        String filePath = generateFilePath(userId, projectId, file.getName(), file.getExtension());
+        // 실제 파일 경로 가져오기
+        String basePath = generatePath(userId, projectId, file.getPath());
+        String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
         java.io.File fileToUpdate = new java.io.File(filePath);
 
         // 파일 덮어쓰기
@@ -157,7 +162,7 @@ public class FileService {
         return FileDto.FileInfoRes.of(file);
     }
 
-    public String executeFile(Long projectId, Long fileId, String userInput, String token) {
+    public String executeFile(Long projectId, Long fileId, Map<String, String> userInput, String token) {
         log.info("Executing file with id: {}", fileId);
 
         // 유저 인증
@@ -169,11 +174,15 @@ public class FileService {
                 .orElseThrow(() -> new FileNotFoundException(fileId));
 
         // 파일 경로 생성
-        String filePath = generateFilePath(userId, projectId, file.getName(), file.getExtension());
+        String basePath = generatePath(userId, projectId, file.getPath());
+        String filePath = generateFilePath(basePath, file.getName(), file.getExtension());
 
-        //TODO: 파일 실행 결과 반환 (FileExecutor 사용)
+        String input = userInput.get("userInput");
+        log.info("FileService.execute() -> User input: {}", input);
 
-        return "";
+        // 파일 실행
+        String command = CommandBuilder.buildCommand(file.getExtension(), filePath);
+        return FileExecutor.executeCommand(command, input);
     }
 
     private User validateUser(Long userId) {

@@ -5,13 +5,13 @@ import com.dpide.dpide.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,7 +66,7 @@ public class FileController {
     @PostMapping("/projects/{projectId}/files/{fileId}")
     public ResponseEntity<String> executeFile(@PathVariable Long projectId,
                                               @PathVariable Long fileId,
-                                              @RequestBody String userInput,
+                                              @RequestBody Map<String, String> userInput,
                                               @RequestHeader("Authorization") String token) {
         log.info("CALL: FileController.executeFile");
         String executionResult = fileService.executeFile(projectId, fileId, userInput, token);
