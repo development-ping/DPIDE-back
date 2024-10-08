@@ -114,6 +114,7 @@ class FileControllerTest {
                         result.getResponse().getContentType().equals(MediaType.TEXT_PLAIN_VALUE));
 
         verify(fileService).getFileContent(projectId, fileId, token);
+        
     }
     /*
     @Test
