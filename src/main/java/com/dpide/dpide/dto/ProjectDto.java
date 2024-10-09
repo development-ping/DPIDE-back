@@ -13,6 +13,7 @@ public class ProjectDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
+    @EqualsAndHashCode
     public static class CreationReq {
         private String name;
         private String description;

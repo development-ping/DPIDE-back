@@ -10,6 +10,7 @@ public class AlarmDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
+    @EqualsAndHashCode
     public static class InviteReq {
         private Long projectId;
         private String email;
