@@ -91,7 +91,7 @@ class FileControllerTest {
 
         mockMvc.perform(delete("/projects/{projectId}/files/{fileId}", projectId, fileId, token)
                         .header("Authorization", token)
-        )//.with(csrf()))
+                        .with(csrf()))
                 .andExpect(status().isOk());
 
         verify(fileService).deleteFile(projectId, fileId, token);
@@ -114,8 +114,9 @@ class FileControllerTest {
                         result.getResponse().getContentType().equals(MediaType.TEXT_PLAIN_VALUE));
 
         verify(fileService).getFileContent(projectId, fileId, token);
-        
+
     }
+
     /* =====
     @Test
     @WithMockUser
