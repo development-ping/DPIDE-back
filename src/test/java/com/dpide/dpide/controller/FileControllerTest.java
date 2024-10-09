@@ -94,7 +94,8 @@ class FileControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk());
 
-        verify(fileService).deleteFile(projectId, fileId, token);
+        verify(fileService)
+                .deleteFile(projectId, fileId, token);
     }
 
     @Test
