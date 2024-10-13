@@ -1,3 +1,4 @@
+<br>
 <div align="center">
   <a href="https://github.com/development-ping/DPIDE-back">
     <img alt="logo" src="https://github.com/development-ping/DPIDE-frontend/blob/main/public/images/logo.png">
@@ -13,7 +14,7 @@
      ㅤ 
     <a href="">시연영상</a>
 </div>
-<br><br><br><br>
+<br><br>
 
 ## Contributors
 <table width=100%>
