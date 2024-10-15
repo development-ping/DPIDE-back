@@ -44,8 +44,6 @@ public class FileService {
 
         Long userId = userService.getAuthenticatedUser(token).getId();
         User user = validateUser(userId);
-
-        validateUser(userId);
         Project project = validateProjectOwnership(projectId, user);
         File parentFile = validateParentFile(req.getParentId());
 
@@ -75,8 +73,6 @@ public class FileService {
 
         Long userId = userService.getAuthenticatedUser(token).getId();
         User user = validateUser(userId);
-
-        validateUser(userId);
         validateProjectOwnership(projectId, user);
 
         File file = fileRepository.findById(fileId)
@@ -114,8 +110,6 @@ public class FileService {
 
         Long userId = userService.getAuthenticatedUser(token).getId();
         User user = validateUser(userId);
-
-        validateUser(userId);
         validateProjectOwnership(projectId, user);
 
         File file = fileRepository.findById(fileId)
@@ -141,8 +135,6 @@ public class FileService {
 
         Long userId = userService.getAuthenticatedUser(token).getId();
         User user = validateUser(userId);
-
-        validateUser(userId);
         validateProjectOwnership(projectId, user);
 
         File file = fileRepository.findById(fileId)
